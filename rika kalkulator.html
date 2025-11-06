@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kalkulator Pastel Cute + Currency + History</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fbfd96, #d4a5fa);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .bg-math{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:0;pointer-events:none}
+  .bg-math span{position:absolute;display:block;color:rgba(255,182,193,0.6);font-size:20px;animation:fall linear infinite}
+  @keyframes fall{0%{transform:translateY(-10%);opacity:0}20%{opacity:1}100%{transform:translateY(110vh);opacity:0}}
+  .calculator{position:relative;z-index:2;width:300px;background:#fff;border:3px solid #f8d7da;border-radius:25px;padding:20px;box-shadow:0px 8px 20px rgba(0,0,0,0.1)}
+  .display{width:50%;height:55px;margin-bottom:10px;text-align:right;padding:10px;font-size:22px;border:none;border-radius:15px;background:#ffe6f0;box-shadow:inset 3px 3px 7px #e0bfcf,inset -3px -3px 7px #fff0f5}
+  .currency-select{width:100%;margin-bottom:15px;padding:8px;border-radius:10px;border:1px solid #ddd;font-size:14px;background:#f8f8ff}
+  .buttons{display:grid;grid-template-columns:repeat(4,1fr);grid-gap:12px}
+  .button{padding:10px;text-align:center;font-size:18px;cursor:pointer;border-radius:18px;border:none;background:#ffe6e6;box-shadow:2px 2px 8px rgba(0,0,0,0.1);transition:0.2s}
+  .button:hover{transform:scale(1.08);background:#ffcccc}
+  .btn-text{display:block;font-size:11px;color:#666;margin-top:4px}
+  .button.op{background:#d6f5f5}.button.op:hover{background:#b3e6e6}
+  .button.equal{background:#ffd9b3}.button.equal:hover{background:#ffc180}
+  .button.clear{grid-column:span 4;border-radius:15px;background:#e6ccff}
+  .button.clear:hover{background:#d1b3ff}
+  .history{margin-top:20px;max-height:160px;overflow-y:auto;background:#fafaff;border:1px solid #eee;border-radius:12px;padding:10px;font-size:14px;box-shadow:inset 2px 2px 6px rgba(0,0,0,0.05)}
+  .history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .history h3{margin:0;font-size:16px;color:#555}
+  .clear-history{font-size:12px;background:#ffcccc;border:none;border-radius:8px;padding:4px 8px;cursor:pointer;transition:0.2s}
+  .clear-history:hover{background:#ff9999}
+  .history-item{margin:3px 0;padding:5px;border-radius:8px;background:#fdf1f1}
+  .music-player{margin-top:15px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="bg-math" id="bgMath"></div>
+
+<div class="calculator">
+  <input type="text" class="display" id="display" disabled>
+  
+  <select id="currency" class="currency-select">
+    <option value="IDR">Rp - Rupiah</option>
+    <option value="USD">$ - Dollar</option>
+    <option value="EUR">€ - Euro</option>
+    <option value="JPY">¥ - Yen</option>
+    <option value="GBP">£ - Pound</option>
+  </select>
+
+  <div class="buttons">
+    <div class="button" onclick="appendToDisplay('7','Tujuh')">7<span class="btn-text">Seven</span></div>
+    <div class="button" onclick="appendToDisplay('8','Delapan')">8<span class="btn-text">Eight</span></div>
+    <div class="button" onclick="appendToDisplay('9','Sembilan')">9<span class="btn-text">Nine</span></div>
+    <div class="button op" onclick="appendToDisplay('/','Bagi')">÷<span class="btn-text">Divide</span></div>
+
+    <div class="button" onclick="appendToDisplay('4','Empat')">4<span class="btn-text">Four</span></div>
+    <div class="button" onclick="appendToDisplay('5','Lima')">5<span class="btn-text">Five</span></div>
+    <div class="button" onclick="appendToDisplay('6','Enam')">6<span class="btn-text">Six</span></div>
+    <div class="button op" onclick="appendToDisplay('*','Kali')">×<span class="btn-text">Multiply</span></div>
+
+    <div class="button" onclick="appendToDisplay('1','Satu')">1<span class="btn-text">One</span></div>
+    <div class="button" onclick="appendToDisplay('2','Dua')">2<span class="btn-text">Two</span></div>
+    <div class="button" onclick="appendToDisplay('3','Tiga')">3<span class="btn-text">Three</span></div>
+    <div class="button op" onclick="appendToDisplay('-','Kurang')">−<span class="btn-text">Minus</span></div>
+
+    <div class="button" onclick="appendToDisplay('0','Nol')">0<span class="btn-text">Zero</span></div>
+    <div class="button" onclick="appendToDisplay('.','Titik')">.<span class="btn-text">Dot</span></div>
+    <div class="button equal" onclick="calculate()">=<span class="btn-text">Equal</span></div>
+    <div class="button op" onclick="appendToDisplay('+','Tambah')">+<span class="btn-text">Plus</span></div>
+
+    <div class="button clear" onclick="clearDisplay()">C<span class="btn-text">Clear</span></div>
+  </div>
+
+  <div class="history" id="historyBox">
+    <div class="history-header">
+      <h3>History</h3>
+      <button class="clear-history" onclick="clearHistory()">Clear</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="music-player">
+    <audio id="bgMusic" controls loop>
+      <source src="https://www.bensound.com/bensound-music/bensound-littleidea.mp3" type="audio/mpeg">
+      Browser kamu tidak mendukung audio.
+    </audio>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const currencySelect = document.getElementById('currency');
+  const historyList = document.getElementById('historyList');
+
+  // Fungsi suara Indonesia
+  function speakText(text){
+    let msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "id-ID"; // Bahasa Indonesia
+    window.speechSynthesis.speak(msg);
+  }
+
+  function appendToDisplay(value, voiceText) { 
+    display.value += value; 
+    if(voiceText) speakText(voiceText);
+  }
+
+  function clearDisplay() { 
+    display.value = ''; 
+    speakText("Hapus");
+  }
+
+  function calculate() {
+    try {
+      let expression = display.value;
+      let result = eval(expression);
+      let currency = currencySelect.value;
+
+      let formatted;
+      switch(currency) {
+        case 'USD': formatted = "$" + result.toLocaleString(); break;
+        case 'EUR': formatted = "€" + result.toLocaleString(); break;
+        case 'JPY': formatted = "¥" + result.toLocaleString(); break;
+        case 'GBP': formatted = "£" + result.toLocaleString(); break;
+        default:    formatted = "Rp " + result.toLocaleString("id-ID");
+      }
+
+      display.value = formatted;
+
+      let historyItem = document.createElement("div");
+      historyItem.className = "history-item";
+      historyItem.textContent = expression + " = " + formatted;
+      historyList.prepend(historyItem);
+
+      speakText("Hasilnya adalah " + formatted);
+    } catch (error) {
+      display.value = 'Error';
+      speakText("Terjadi kesalahan");
+    }
+  }
+  function clearHistory() { 
+    historyList.innerHTML = ""; 
+    speakText("Riwayat dihapus");
+  }
+
+  const bgMath = document.getElementById("bgMath");
+  const symbols = ["+", "−", "×", "÷", "=", "√", "%", "π", "∑", "∞", "≠", "≈", "≤", "≥"];
+  function createSymbol() {
+    const span = document.createElement("span");
+    span.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    span.style.left = Math.random() * 100 + "vw";
+    span.style.animationDuration = (3 + Math.random()*5) + "s";
+    span.style.fontSize = (15 + Math.random()*25) + "px";
+    bgMath.appendChild(span);
+    setTimeout(() => { span.remove(); }, 8000);
+  }
+  setInterval(createSymbol, 500);
+</script>
+
+</body>
+</html>
